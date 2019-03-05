@@ -3,6 +3,10 @@ from PIL import ImageGrab
 import cv2
 import time
 from directKey import PressKey, ReleaseKey, W, A, S, D
+from Debuger import Debuger
+
+debug = False
+
 
 
 def waitsecs(sec = 5):
@@ -21,7 +25,11 @@ def process_image(originalImage):
 
 def get_screen():
     waitsecs()
+    if debug: debuger = Debuger("Debug info for getscreen(): ")
+    lastTime = time.time()
     while(True):
+        if debug: debuger.deb(("Loop takes {} secs".format(time.time() - lastTime)))
+        lastTime = time.time()
         #frame = np.array(ImageGrab.grab(bbox=(130,64,880,624)))
         frame = np.array(ImageGrab.grab(bbox=(0,40,800,636)))
         edgeDetection = process_image(frame)
