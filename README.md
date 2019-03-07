@@ -7,5 +7,6 @@ https://www.youtube.com/user/sentdex
 
 2019/3/6
 Part 1 Finished (opencv screen grabing & lane detection)
+
 TODO:
 NEU NETWORK TRAINNING
