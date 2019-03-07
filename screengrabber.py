@@ -2,7 +2,7 @@ import     numpy        as      np
 from       PIL          import  ImageGrab
 import     cv2
 import     time
-from       directKey    import  PressKey, ReleaseKey, W, A, S, D
+from Driver             import     Driver
 import     win32gui, win32ui, win32con, win32api
 from       Debuger      import  Debuger
 from       numpy        import  ones,vstack
@@ -130,9 +130,9 @@ class Screen:
             print(str(e))
 
 
-    def process_image(self, originalImage):
-        originalImage = originalImage
-        # convert the given image to grey
+    def process_image(self, img):
+        originalImage = img
+        #convert the given image to grey
         processedImage = cv2.cvtColor(originalImage, cv2.COLOR_BGR2GRAY)
         # edge detection
         processedImage = cv2.Canny(processedImage,
@@ -150,7 +150,7 @@ class Screen:
           
         processedImage = self.get_region_of_interest(processedImage, [vertices])
 
-        lines = cv2.HoughLinesP(processedImage, 1, np.pi/180, 180, np.array([]), 100, 5)
+        lines = cv2.HoughLinesP(processedImage, 1, np.pi/180, 180, 20, 15)
         #                      edges, 1, np.array is xuanxue, minlinelength, maxlinegap
         # tweakable too
         # The HoughLine Transform Algorithm
@@ -163,7 +163,7 @@ class Screen:
             cv2.line(originalImage, (l2[0], l2[1]), (l2[2], l2[3]), [0,255,0], 30)
         except Exception as e:
             print(str(e))
-            print(1)
+            pass
 
         try:
             for coords in lines:
@@ -213,8 +213,10 @@ class Screen:
 
         return cv2.cvtColor(img, cv2.COLOR_BGRA2RGB)
 
+        
+
     def get_screen(self):
-        self.waitsecs(2)
+        self.waitsecs(5)
         if debug: debuger = Debuger("Debug info for getscreen(): ")
         lastTime = time.time()
         while(True):
@@ -222,10 +224,22 @@ class Screen:
             lastTime = time.time()
             frame = self.grab_screen(region=(0,40,800,640))
             newScreen, originalImage, m1, m2 = self.process_image(frame)
-            cv2.imshow("processedImage", newScreen)
+            #cv2.imshow("processedImage", newScreen)
             cv2.imshow('originalImage', cv2.cvtColor(originalImage, cv2.COLOR_BGR2RGB))
             # display the opencv detected edges
-
+            driver = Driver()
+            
+            naiveDriver = True
+            if naiveDriver:
+                if m1 < 0 and m2 < 0:
+                    driver.right()
+                elif m1 > 0 and m2 > 0:
+                    driver.left()
+                else:
+                    driver.straight()
+                
+            
+            
             # press q to quit
             if cv2.waitKey(25) & 0xFF == ord('q'):
                 cv2.destroyAllWindows()
