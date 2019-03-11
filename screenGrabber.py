@@ -1,16 +1,45 @@
-import     numpy        as      np
-from       PIL          import  ImageGrab
+import     numpy         as      np
+from       PIL           import  ImageGrab
 import     cv2
 import     time
-from Driver             import     Driver
+from       Driver        import  Driver
 import     win32gui, win32ui, win32con, win32api
-from       Debuger      import  Debuger
-from       numpy        import  ones,vstack
-from       numpy.linalg import  lstsq
-from       statistics   import  mean
-import     pyautogui
+from       Debuger       import  Debuger
+from       numpy         import  ones,vstack
+from       numpy.linalg  import  lstsq
+from       statistics    import  mean
+from       getkeys       import  key_check
+import     os
 
-debug = False
+debug = True
+if debug: debuger = Debuger()
+
+
+def keys_to_output(keys):
+    # convert pressed keys to an array
+    #[A,W,D]
+    output = [0,0,0]
+    
+    if 'A' in keys:
+        output[0] = 1
+    elif 'D' in keys:
+        output[2] = 1
+    else:
+        output[1] = 1
+
+    return output
+
+file_name = 'training_data.npy'
+if os.path.isfile(file_name):
+    debuger.deb("training file exist, loading previous data")
+    training_data = list(np.load(file_name))
+else:
+    debuger.deb("training file not exist, start fresh")
+    training_data = []
+    
+
+
+
 
 class Screen:
     def get_region_of_interest(self, img, vertices):
@@ -217,34 +246,24 @@ class Screen:
 
     def get_screen(self):
         self.waitsecs(5)
-        if debug: debuger = Debuger("Debug info for getscreen(): ")
         lastTime = time.time()
         while(True):
             if debug: debuger.deb(("Loop takes {} secs".format(time.time() - lastTime)))
             lastTime = time.time()
+
             frame = self.grab_screen(region=(0,40,800,640))
-            newScreen, originalImage, m1, m2 = self.process_image(frame)
-            #cv2.imshow("processedImage", newScreen)
-            cv2.imshow('originalImage', cv2.cvtColor(originalImage, cv2.COLOR_BGR2RGB))
-            # display the opencv detected edges
-            driver = Driver()
-            
-            naiveDriver = True
-            if naiveDriver:
-                if m1 < 0 and m2 < 0:
-                    driver.right()
-                elif m1 > 0 and m2 > 0:
-                    driver.left()
-                else:
-                    driver.straight()
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            frame = cv2.resize(frame,(80,60))
+            keys = key_check()
+            output = keys_to_output(keys)
+            training_data.append([frame, output])
+            if len(training_data) %500 ==0:
+                debuger.deb("have {} training data(s)".format(len(training_data)))
+                np.save(file_name, training_data)
                 
             
-            
-            # press q to quit
-            if cv2.waitKey(25) & 0xFF == ord('q'):
-                cv2.destroyAllWindows()
-                break
 
+           
 if __name__ == "__main__":
     s = Screen()
     s.get_screen()
