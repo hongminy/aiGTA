@@ -11,5 +11,6 @@ Part 1 Finished (opencv screen grabing & lane detection)
 2019/3/11
 Training Data Collector done!
 run ScreenGrabber.py to collect data -please drive politely in the game:)
+
 TODO:
 NEU NETWORK TRAINNING
