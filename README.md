@@ -13,4 +13,8 @@ Training Data Collector done!
 run ScreenGrabber.py to collect data -please drive politely in the game:)
 
 TODO:
+The Neunetwork we want to use is tflearn alexnet:
+
+https://github.com/tensorflow/models/blob/master/research/slim/nets/alexnet.py
+
 NEU NETWORK TRAINNING
